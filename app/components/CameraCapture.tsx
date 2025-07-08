@@ -92,29 +92,62 @@ export default function CameraCapture() {
   }, [startCamera])
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-lg">
-      <h2 className="text-2xl font-bold text-center mb-6">AI Camera</h2>
+    <div className="max-w-3xl mx-auto p-8 rounded-2xl border" style={{
+      backgroundColor: 'var(--surface)',
+      borderColor: 'var(--border-subtle)',
+      boxShadow: 'var(--shadow-lg)'
+    }}>
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>AI Camera</h2>
+        <p style={{ color: 'var(--text-secondary)' }}>Capture and analyze images with AI</p>
+      </div>
       
-      <div className="relative mb-6">
+      <div className="relative mb-8">
         {/* Video preview */}
         {!capturedImage && (
-          <video
-            ref={videoRef}
-            autoPlay
-            playsInline
-            className="w-full rounded-lg bg-gray-900"
-            style={{ aspectRatio: '4/3' }}
-          />
+          <div className="relative overflow-hidden rounded-2xl border" style={{
+            backgroundColor: 'var(--container)',
+            borderColor: 'var(--border)',
+            aspectRatio: '4/3'
+          }}>
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              className="w-full h-full object-cover"
+            />
+            {!isStreaming && (
+              <div className="absolute inset-0 flex items-center justify-center" style={{
+                backgroundColor: 'var(--container)'
+              }}>
+                <div className="text-center">
+                  <div className="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center" style={{
+                    backgroundColor: 'var(--border)'
+                  }}>
+                    <svg className="w-10 h-10" style={{ color: 'var(--text-tertiary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </div>
+                  <p style={{ color: 'var(--text-tertiary)' }}>Camera preview will appear here</p>
+                </div>
+              </div>
+            )}
+          </div>
         )}
         
         {/* Captured image preview */}
         {capturedImage && (
-          <img
-            src={capturedImage}
-            alt="Captured"
-            className="w-full rounded-lg"
-            style={{ aspectRatio: '4/3', objectFit: 'cover' }}
-          />
+          <div className="relative overflow-hidden rounded-2xl border" style={{
+            borderColor: 'var(--border)',
+            aspectRatio: '4/3'
+          }}>
+            <img
+              src={capturedImage}
+              alt="Captured"
+              className="w-full h-full object-cover"
+            />
+          </div>
         )}
         
         {/* Hidden canvas for capture */}
@@ -126,9 +159,24 @@ export default function CameraCapture() {
         {!isStreaming && !capturedImage && (
           <button
             onClick={startCamera}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="w-full px-8 py-4 rounded-xl font-semibold transition-all duration-200 hover:scale-105"
+            style={{
+              backgroundColor: 'var(--brand-primary)',
+              color: 'white'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--brand-primary-hover)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--brand-primary)'
+            }}
           >
-            Start Camera
+            <div className="flex items-center justify-center space-x-2">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+              <span>Start Camera</span>
+            </div>
           </button>
         )}
 
@@ -136,15 +184,44 @@ export default function CameraCapture() {
           <div className="flex gap-4">
             <button
               onClick={capturePhoto}
-              className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              className="flex-1 px-8 py-4 rounded-xl font-semibold transition-all duration-200 hover:scale-105"
+              style={{
+                backgroundColor: 'var(--brand-secondary)',
+                color: 'white'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#00c49a'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--brand-secondary)'
+              }}
             >
-              📸 Take Photo
+              <div className="flex items-center justify-center space-x-2">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span>Capture Photo</span>
+              </div>
             </button>
             <button
               onClick={stopCamera}
-              className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              className="px-6 py-4 rounded-xl font-semibold transition-all duration-200 border"
+              style={{
+                backgroundColor: 'transparent',
+                borderColor: 'var(--border)',
+                color: 'var(--text-secondary)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--container)'
+                e.currentTarget.style.color = 'var(--text-primary)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent'
+                e.currentTarget.style.color = 'var(--text-secondary)'
+              }}
             >
-              Stop Camera
+              Stop
             </button>
           </div>
         )}
@@ -154,16 +231,61 @@ export default function CameraCapture() {
             <button
               onClick={submitImage}
               disabled={isUploading}
-              className="flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-400 transition-colors"
+              className="flex-1 px-8 py-4 rounded-xl font-semibold transition-all duration-200 hover:scale-105 disabled:hover:scale-100 disabled:opacity-50"
+              style={{
+                backgroundColor: isUploading ? 'var(--text-disabled)' : 'var(--brand-primary)',
+                color: 'white'
+              }}
+              onMouseEnter={(e) => {
+                if (!isUploading) {
+                  e.currentTarget.style.backgroundColor = 'var(--brand-primary-hover)'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isUploading) {
+                  e.currentTarget.style.backgroundColor = 'var(--brand-primary)'
+                }
+              }}
             >
-              {isUploading ? 'Processing...' : '🚀 Submit & Analyze'}
+              <div className="flex items-center justify-center space-x-2">
+                {isUploading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Processing...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <span>Analyze with AI</span>
+                  </>
+                )}
+              </div>
             </button>
             <button
               onClick={retakePhoto}
               disabled={isUploading}
-              className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:bg-gray-400 transition-colors"
+              className="px-6 py-4 rounded-xl font-semibold transition-all duration-200 border disabled:opacity-50"
+              style={{
+                backgroundColor: 'transparent',
+                borderColor: 'var(--border)',
+                color: 'var(--text-secondary)'
+              }}
+              onMouseEnter={(e) => {
+                if (!isUploading) {
+                  e.currentTarget.style.backgroundColor = 'var(--container)'
+                  e.currentTarget.style.color = 'var(--text-primary)'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isUploading) {
+                  e.currentTarget.style.backgroundColor = 'transparent'
+                  e.currentTarget.style.color = 'var(--text-secondary)'
+                }
+              }}
             >
-              🔄 Retake
+              Retake
             </button>
           </div>
         )}
@@ -171,11 +293,11 @@ export default function CameraCapture() {
 
       {/* Status message */}
       {uploadStatus && (
-        <div className={`mt-4 p-3 rounded-lg text-center ${
-          uploadStatus.includes('Error') 
-            ? 'bg-red-100 text-red-700' 
-            : 'bg-green-100 text-green-700'
-        }`}>
+        <div className={`mt-6 p-4 rounded-xl text-center font-medium`} style={{
+          backgroundColor: uploadStatus.includes('Error') ? 'var(--error-bg)' : 'var(--success-bg)',
+          color: uploadStatus.includes('Error') ? 'var(--error)' : 'var(--success)',
+          border: `1px solid ${uploadStatus.includes('Error') ? 'var(--error)' : 'var(--success)'}`
+        }}>
           {uploadStatus}
         </div>
       )}

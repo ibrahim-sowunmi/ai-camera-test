@@ -143,3 +143,166 @@ export async function getAllImages() {
     return []
   }
 }
+
+// Chat-related actions
+export async function getChatHistory() {
+  try {
+    const messages = await prisma.chatMessage.findMany({
+      orderBy: { createdAt: 'asc' },
+    })
+    return messages
+  } catch (error) {
+    console.error('Get chat history error:', error)
+    return []
+  }
+}
+
+export async function saveChatMessage(role: 'user' | 'assistant', content: string) {
+  try {
+    const message = await prisma.chatMessage.create({
+      data: {
+        role,
+        content,
+      },
+    })
+    return message
+  } catch (error) {
+    console.error('Save chat message error:', error)
+    throw error
+  }
+}
+
+// AI Agent Tools
+export async function getLatestChanges(range: number = 2) {
+  try {
+    const images = await prisma.image.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: range,
+    })
+    
+    if (images.length === 0) {
+      return { success: false, message: 'No images found' }
+    }
+    
+    const analysis = {
+      totalImages: images.length,
+      timeRange: {
+        from: images[images.length - 1]?.createdAt,
+        to: images[0]?.createdAt,
+      },
+      images: images.map(img => ({
+        id: img.id,
+        createdAt: img.createdAt,
+        description: img.description,
+        delta: img.delta,
+      })),
+    }
+    
+    return { success: true, data: analysis }
+  } catch (error) {
+    console.error('Get latest changes error:', error)
+    return { success: false, message: 'Failed to get latest changes' }
+  }
+}
+
+export async function getAllImageDescriptions() {
+  try {
+    const images = await prisma.image.findMany({
+      select: {
+        id: true,
+        createdAt: true,
+        description: true,
+        delta: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    })
+    
+    return { success: true, data: images }
+  } catch (error) {
+    console.error('Get all descriptions error:', error)
+    return { success: false, message: 'Failed to get image descriptions' }
+  }
+}
+
+// AI Agent Chat Handler
+export async function handleChatMessage(userMessage: string) {
+  try {
+    // Save user message
+    await saveChatMessage('user', userMessage)
+    
+    // Prepare system prompt and tools for the AI agent
+    const systemPrompt = `You are an AI assistant that helps users understand what's happening in their camera feed over time. You have access to tools that can analyze image changes and provide insights.
+
+Available tools:
+1. getLatestChanges(range) - Get the latest N images with their descriptions and deltas
+2. getAllImageDescriptions() - Get all image descriptions to understand the full context
+
+When users ask about recent changes, use the getLatestChanges tool. When they want a broader understanding, use getAllImageDescriptions.
+
+Provide helpful, conversational responses about what you observe in the images.`
+    
+    // Simple tool detection (in a real implementation, you'd use a more sophisticated approach)
+    let toolResponse = ''
+    
+    if (userMessage.toLowerCase().includes('latest') || userMessage.toLowerCase().includes('recent') || userMessage.toLowerCase().includes('change')) {
+      const range = extractRangeFromMessage(userMessage)
+      const result = await getLatestChanges(range)
+      if (result.success && result.data) {
+        toolResponse = `Based on the latest ${range} images:\n\n`
+        result.data.images.forEach((img, index) => {
+          toolResponse += `Image ${index + 1} (${new Date(img.createdAt).toLocaleString()}):\n`
+          if (img.description) toolResponse += `Description: ${img.description}\n`
+          if (img.delta) toolResponse += `Changes: ${img.delta}\n`
+          toolResponse += '\n'
+        })
+      }
+    } else if (userMessage.toLowerCase().includes('all') || userMessage.toLowerCase().includes('everything') || userMessage.toLowerCase().includes('summary')) {
+      const result = await getAllImageDescriptions()
+      if (result.success && result.data) {
+        toolResponse = `Here's a summary of all captured images (${result.data.length} total):\n\n`
+        result.data.slice(0, 5).forEach((img, index) => {
+          toolResponse += `${index + 1}. ${new Date(img.createdAt).toLocaleString()}\n`
+          if (img.description) toolResponse += `   ${img.description}\n`
+          toolResponse += '\n'
+        })
+        if (result.data.length > 5) {
+          toolResponse += `... and ${result.data.length - 5} more images.`
+        }
+      }
+    }
+    
+    // Generate AI response using OpenAI
+    const messages: Array<{ role: 'system' | 'user' | 'assistant', content: string }> = [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userMessage + (toolResponse ? `\n\nTool data:\n${toolResponse}` : '') }
+    ]
+    
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      messages,
+      max_tokens: 500,
+    })
+    
+    const assistantMessage = response.choices[0]?.message?.content || 'I apologize, but I couldn\'t generate a response.'
+    
+    // Save assistant message
+    await saveChatMessage('assistant', assistantMessage)
+    
+    revalidatePath('/chat')
+    return { success: true, message: assistantMessage }
+  } catch (error) {
+    console.error('Chat handler error:', error)
+    const errorMessage = 'I apologize, but I encountered an error while processing your message.'
+    await saveChatMessage('assistant', errorMessage)
+    return { success: false, message: errorMessage }
+  }
+}
+
+function extractRangeFromMessage(message: string): number {
+  const numbers = message.match(/\d+/)
+  if (numbers) {
+    const num = parseInt(numbers[0])
+    return Math.min(Math.max(num, 1), 10) // Limit between 1 and 10
+  }
+  return 2 // Default
+}

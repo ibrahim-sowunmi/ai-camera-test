@@ -20,3 +20,10 @@ model Image {
   delta       String?
   createdAt   DateTime @default(now())
 }
+
+model ChatMessage {
+  id        String   @id @default(uuid())
+  role      String   // 'user' or 'assistant'
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+}
