@@ -44,6 +44,12 @@ export default function Home() {
               >
                 Chat
               </Link>
+              <Link 
+                href="/feedback" 
+                className="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 nav-link"
+              >
+                Feedback Now
+              </Link>
             </nav>
           </div>
         </div>

@@ -1,5 +1,5 @@
 import { getChatHistory } from '../lib/actions'
-import ChatInterface from '../components/ChatInterface'
+import ChatInterface from '@/components/ChatInterface'
 
 export default async function ChatPage() {
   const chatHistory = await getChatHistory()
@@ -44,6 +44,12 @@ export default async function ChatPage() {
                 }}
               >
                 Chat
+              </a>
+              <a
+                href="/feedback"
+                className="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 nav-link"
+              >
+                Feedback Now
               </a>
             </nav>
           </div>

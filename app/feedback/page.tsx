@@ -1,7 +1,7 @@
 import Link from 'next/link'
-import Gallery from '../components/Gallery'
+import RealtimeAnalysis from '@/components/RealtimeAnalysis'
 
-export default function GalleryPage() {
+export default function FeedbackPage() {
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--background)' }}>
       {/* Header */}
@@ -30,11 +30,7 @@ export default function GalleryPage() {
               </Link>
               <Link 
                 href="/gallery" 
-                className="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
-                style={{
-                  backgroundColor: 'var(--brand-primary)',
-                  color: 'white'
-                }}
+                className="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 nav-link"
               >
                 Gallery
               </Link>
@@ -46,7 +42,11 @@ export default function GalleryPage() {
               </Link>
               <Link 
                 href="/feedback" 
-                className="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 nav-link"
+                className="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+                style={{
+                  backgroundColor: 'var(--brand-primary)',
+                  color: 'white'
+                }}
               >
                 Feedback Now
               </Link>
@@ -57,7 +57,18 @@ export default function GalleryPage() {
 
       {/* Main Content */}
       <main className="py-12">
-        <Gallery />
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="text-center mb-8">
+            <h2 className="text-4xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
+              Realtime Feedback
+            </h2>
+            <p className="text-xl" style={{ color: 'var(--text-secondary)' }}>
+              Show an object in your right hand for instant AI analysis
+            </p>
+          </div>
+          
+          <RealtimeAnalysis />
+        </div>
       </main>
     </div>
   )
